@@ -29,6 +29,12 @@ def execute_test(
     Returns:
         Dict with success, results, kpi_report
     """
+    if not TESTER_API_KEY:
+        raise Exception(
+            "MONKAI_TESTER_API_KEY environment variable is required. "
+            "Set it before running remote tests."
+        )
+
     payload = {
         "testId": test_id,
         "executionId": execution_id,
