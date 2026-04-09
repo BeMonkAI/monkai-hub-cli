@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-"""HTTP client for the MonkAI Tester Railway server."""
+"""HTTP client for test execution via Supabase Edge Function.
+
+The Edge Function `python-test-executor` proxies to the monkai-tester
+Railway server internally. The CLI only needs the user's JWT — no
+server API keys required.
+"""
 
 from __future__ import annotations
 
@@ -7,7 +12,8 @@ from typing import Any, Dict, List
 
 import httpx
 
-from .config import TESTER_API_KEY, TESTER_API_URL
+from .auth import get_token
+from .config import EDGE_FUNCTION_URL, SUPABASE_ANON_KEY
 
 
 def execute_test(
@@ -17,7 +23,11 @@ def execute_test(
     dev_config: Dict[str, Any],
     timeout: float = 120.0,
 ) -> Dict[str, Any]:
-    """Call the monkai-tester Railway server to execute a test.
+    """Execute a test via the Supabase Edge Function.
+
+    The Edge Function authenticates the user via JWT, verifies test
+    ownership, and proxies the request to the monkai-tester Railway
+    server (which has the API key configured server-side).
 
     Args:
         test_id: UUID of the agent_test
@@ -29,11 +39,7 @@ def execute_test(
     Returns:
         Dict with success, results, kpi_report
     """
-    if not TESTER_API_KEY:
-        raise Exception(
-            "MONKAI_TESTER_API_KEY environment variable is required. "
-            "Set it before running remote tests."
-        )
+    token = get_token()
 
     payload = {
         "testId": test_id,
@@ -43,11 +49,12 @@ def execute_test(
     }
 
     resp = httpx.post(
-        f"{TESTER_API_URL}/api/v1/execute-test",
+        EDGE_FUNCTION_URL,
         json=payload,
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {TESTER_API_KEY}",
+            "Authorization": f"Bearer {token}",
+            "apikey": SUPABASE_ANON_KEY,
         },
         timeout=timeout,
     )
@@ -59,6 +66,6 @@ def execute_test(
             detail = body.get("detail") or body.get("error") or ""
         except Exception:
             detail = resp.text[:200]
-        raise Exception(f"Tester API error ({resp.status_code}): {detail}")
+        raise Exception(f"Test execution failed ({resp.status_code}): {detail}")
 
     return resp.json()

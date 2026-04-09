@@ -18,10 +18,6 @@ SUPABASE_ANON_KEY = os.environ.get(
     "s9pXyntkt0fNQW21LRiu3ZNf2COImQuQ9xQ9pcI5zfc",
 )
 
-# MonkAI Tester Railway server
-TESTER_API_URL = os.environ.get(
-    "MONKAI_TESTER_API_URL",
-    "https://monkai-tester-production.up.railway.app",
-)
-# REQUIRED — must be set via environment variable, never hardcoded
-TESTER_API_KEY = os.environ.get("MONKAI_TESTER_API_KEY", "")
+# Edge Function for test execution (proxies to Railway server internally)
+# The Edge Function already has the tester API key — CLI only needs the user JWT.
+EDGE_FUNCTION_URL = f"{SUPABASE_URL}/functions/v1/python-test-executor"
