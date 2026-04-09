@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "monkai-hub-cli"
-version = "0.1.0"
+version = "0.1.1"
 description = "CLI for MonkAI Hub — configure, run and manage agent tests from the terminal"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -27,6 +27,12 @@ dependencies = [
     "typer>=0.9.0,<1.0.0",
     "httpx>=0.27.0,<1.0.0",
 ]
+
+[project.urls]
+Homepage = "https://www.monkaihub.com"
+Documentation = "https://github.com/BeMonkAI/monkai-hub-cli#readme"
+Repository = "https://github.com/BeMonkAI/monkai-hub-cli"
+Issues = "https://github.com/BeMonkAI/monkai-hub-cli/issues"
 
 [project.scripts]
 monkai-hub = "monkai_hub_cli.main:app"
